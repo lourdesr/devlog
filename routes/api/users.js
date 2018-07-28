@@ -7,6 +7,9 @@ const AUTHSECRET = require("../../config/keys").authSecret;
 
 const router = express.Router();
 
+//Load User Validations
+const validateRegisterInput = require("../../validations/register");
+
 //Load User Model
 const User = require("../../models/User");
 
@@ -24,13 +27,15 @@ router.get("/test", (req, res) => {
 //@access   Public
 
 router.post("/register", (req, res) => {
-  // console.log(req.body.name);
-  // console.log(req.body.email);
-  // console.log(req.body.password);
+  const { errors, isValid } = validateRegisterInput(req.body);
+  if (!isValid) {
+    return res.status(400).json({ errors });
+  }
 
   User.findOne({ email: req.body.email }).then(user => {
     if (user) {
-      return res.status(400).json({ email: "Email Already Exists" });
+      errors.email = "Email Already Exists";
+      return res.status(400).json({ errors });
     } else {
       const avatar = gravatar.url(req.body.email, {
         s: "200",
