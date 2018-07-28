@@ -9,6 +9,7 @@ const router = express.Router();
 
 //Load User Validations
 const validateRegisterInput = require("../../validations/register");
+const validateLoginInput = require("../../validations/login");
 
 //Load User Model
 const User = require("../../models/User");
@@ -70,12 +71,19 @@ router.post("/register", (req, res) => {
 //@access   Public
 
 router.post("/login", (req, res) => {
+  const { errors, isValid } = validateLoginInput(req.body);
+  console.log(isValid);
+  if (!isValid) {
+    return res.status(400).json({ errors });
+  }
+
   const email = req.body.email;
   const password = req.body.password;
 
   User.findOne({ email }).then(user => {
     if (!user) {
-      res.status(404).json({ error: "User not found" });
+      errors.email = "User not found";
+      res.status(404).json({ errors });
     }
 
     bcrypt.compare(password, user.password).then(isMatch => {
@@ -98,7 +106,8 @@ router.post("/login", (req, res) => {
         });
       } else {
         //Incorrect Password
-        return res.status(400).json({ password: "Invalid Login Credentials" });
+        errors.password = "Invalid Login Credentials";
+        return res.status(400).json({ errors });
       }
     });
   });
