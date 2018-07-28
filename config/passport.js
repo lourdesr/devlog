@@ -11,7 +11,14 @@ opts.secretOrKey = keys.authSecret;
 module.exports = passport => {
   passport.use(
     new JwtStrategy(opts, (jwtPayload, done) => {
-      console.log(jwtPayload);
+      User.findById(jwtPayload.id)
+        .then(user => {
+          if (user) {
+            done(null, user);
+          }
+          return done(null, false);
+        })
+        .catch(err => console.log(err));
     })
   );
 };

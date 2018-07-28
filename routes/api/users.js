@@ -100,14 +100,18 @@ router.post("/login", (req, res) => {
 });
 
 //@route    GET/api/users/current
-//@desc     Return Current Users
+//@desc     Gets the Current User
 //@access   Private
 
 router.get(
   "/current",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    res.json({ msg: "Success" });
+    res.json({
+      id: req.user.id,
+      email: req.user.email,
+      name: req.user.name
+    });
   }
 );
 
