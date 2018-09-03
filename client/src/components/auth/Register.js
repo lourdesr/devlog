@@ -1,4 +1,6 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import axios from 'axios';
+import classnames from 'classnames';
 
 class Register extends Component {
 
@@ -30,11 +32,22 @@ class Register extends Component {
       password: this.state.password,
       password2: this.state.password2
     };
-    console.log(newUser);
+
+    axios.post('/api/users/register', newUser)
+      .then(res => console.log(res))
+      .catch(err => this.setState({ errors: err.response.data }, () => {
+        console.log(this.state);
+      }));
+
 
   }
 
   render() {
+
+    //Pull errors from this.state variable
+    const { errors } = this.state;
+
+
     return (
 
       <div className="register">
@@ -43,9 +56,12 @@ class Register extends Component {
             <div className="col-md-8 m-auto">
               <h1 className="display-4 text-center">Sign Up</h1>
               <p className="lead text-center">Create your DevConnector account</p>
-              <form onSubmit={this.onSubmit}>
+              <form onSubmit={this.onSubmit} className="needs-validation" noValidate>
                 <div className="form-group">
-                  <input type="text" className="form-control form-control-lg" placeholder="Name" name="name" value={this.state.name} onChange={this.onChange} required />
+                  <input type="text" className={classnames('form-control form-control-lg', {
+                    'is-invalid': errors.name
+                  })} placeholder="Name" name="name" value={this.state.name} onChange={this.onChange} required />
+
                 </div>
                 <div className="form-group">
                   <input type="email" className="form-control form-control-lg" placeholder="Email Address" name="email" value={this.state.email} onChange={this.onChange} />
