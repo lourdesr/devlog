@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+
 import classnames from 'classnames';
 import { connect } from 'react-redux';
 import { registerUser } from '../../actions/authActions';
+
+import { PropTypes } from 'prop-types';
+import { withRouter } from 'react-router-dom';
 
 class Register extends Component {
 
@@ -21,6 +24,13 @@ class Register extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.errors) {
+      console.log(nextProps.errors.errors);
+      this.setState({ errors: nextProps.errors.errors });
+    }
+  }
+
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }
@@ -35,13 +45,8 @@ class Register extends Component {
       password2: this.state.password2
     };
 
-    this.props.registerUser(newUser);
+    this.props.registerUser(newUser, this.props.history);
 
-    // axios.post('/api/users/register', newUser)
-    //   .then(res => console.log(res))
-    //   .catch(err => this.setState({ errors: err.response.data }, () => {
-    //     console.log(this.state);
-    //   }));
 
 
   }
@@ -50,19 +55,29 @@ class Register extends Component {
 
     //Pull errors from this.state variable
     const { errors } = this.state;
-
-    const { user } = this.props.auth;
-
+    const err = "Error List";
 
     return (
 
       <div className="register">
         <div className="container">
-          {user ? user.name : null}
+
           <div className="row">
             <div className="col-md-8 m-auto">
               <h1 className="display-4 text-center">Sign Up</h1>
               <p className="lead text-center">Create your DevConnector account</p>
+              <p className="text-center text-danger">{
+                errors.name ? errors.name : null
+              }</p>
+              <p className="text-center text-danger">{
+                errors.email ? errors.email : null
+              }</p>
+              <p className="text-center text-danger">{
+                errors.password ? errors.password : null
+              }</p>
+              <p className="text-center text-danger">{
+                errors.password2 ? errors.password2 : null
+              }</p>
               <form onSubmit={this.onSubmit} className="needs-validation" noValidate>
                 <div className="form-group">
                   <input type="text" className={classnames('form-control form-control-lg', {
@@ -90,8 +105,15 @@ class Register extends Component {
   }
 }
 
+Register.propTypes = {
+  registerUser: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired
+};
+
 const mapStateToProps = (state) => ({
-  auth: state.auth
+  auth: state.auth,
+  errors: state.errors
 });
 
-export default connect(mapStateToProps, { registerUser })(Register);
+export default connect(mapStateToProps, { registerUser })(withRouter(Register));
